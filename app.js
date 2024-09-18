@@ -7,7 +7,7 @@ const cookieParser = require("cookie-parser");
 const { checkForAuthenticationCookie } = require("./middlewares/authentication");
 const http = require("http");
 const WebSocket = require("ws");
-
+const cors = require("cors");
 // Controllers
 const { handleWebSocketConnection } = require("./controllers/chatController");
 
