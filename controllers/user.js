@@ -201,9 +201,24 @@ async function handleUserSearch(req, res) {
   }
 }
 
+async function handleGetUserInfo(req, res) {
+  try {
+    if (!req.user) {
+      return res.status(404).json({ status: false, message: "Invalid User" });
+    }
+
+    const User = await user.findById({ _id: req.user._id });
+
+    res.status(200).json({ status: true, message: "User Found successfully", user: User });
+  } catch (error) {
+    res.status(500).json({ status: false, message: "Server error", error: error });
+  }
+}
+
 module.exports = {
   hangleGenerateOTP,
   handleVerifyOTP,
   handleUserUpdate,
   handleUserSearch,
+  handleGetUserInfo,
 };

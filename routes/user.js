@@ -1,6 +1,14 @@
 const express = require("express");
-const { hangleGenerateOTP, handleVerifyOTP, handleUserUpdate, handleUserSearch } = require("../controllers/user");
+const {
+  hangleGenerateOTP,
+  handleVerifyOTP,
+  handleUserUpdate,
+  handleUserSearch,
+  handleGetUserInfo,
+} = require("../controllers/user");
 const router = express.Router();
+
+router.get("/profile", handleGetUserInfo);
 
 router.post("/generateOtp", hangleGenerateOTP);
 
