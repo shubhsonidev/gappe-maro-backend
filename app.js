@@ -15,6 +15,7 @@ const { handleWebSocketConnection } = require("./controllers/chatController");
 const app = express();
 const port = process.env.PORT || 4200;
 
+app.use(cors()); // This will allow all origins
 // Connect to DB
 connectToDB().then(() => console.log("MONGODB Connection Successful!"));
 
