@@ -4,7 +4,7 @@ const express = require("express");
 const { connectToDB } = require("./connectToDB");
 const userRouter = require("./routes/user");
 const cookieParser = require("cookie-parser");
-const { checkForAuthenticationCookie } = require("./middlewares/authentication");
+const { checkForAuthenticationHeader } = require("./middlewares/authentication");
 const http = require("http");
 const WebSocket = require("ws");
 const cors = require("cors");
@@ -54,7 +54,7 @@ connectToDB().then(() => console.log("MONGODB Connection Successful!"));
 // Middlewares
 app.use(express.json({ limit: "200mb" }));
 app.use(cookieParser());
-app.use(checkForAuthenticationHeader("authToken"));
+app.use(checkForAuthenticationHeader("token"));
 
 //Master routes
 app.use("/api/user", userRouter);
