@@ -15,7 +15,20 @@ const { handleWebSocketConnection } = require("./controllers/chatController");
 const app = express();
 const port = process.env.PORT || 4200;
 
-app.use(cors()); // This will allow all origins
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "http://localhost:4200"); // Specific origin
+  res.header("Access-Control-Allow-Credentials", "true"); // Allow credentials
+  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE"); // Allow specific methods
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization"); // Allow specific heade
+  next();
+});
+
+app.use(
+  cors({
+    origin: "http://localhost:4200",
+    credentials: true,
+  })
+); // This will allow all origins
 // Connect to DB
 connectToDB().then(() => console.log("MONGODB Connection Successful!"));
 

@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const Chat = require("../models/chat");
+const user = require("../models/user");
 
 // Secret key for JWT verification
 const JWT_SECRET = process.env.JWT_TOKEN;
@@ -70,30 +71,68 @@ async function handleIncomingMessage(messageData, ws, onlineUsers) {
   }
 
   if (from === to) {
-    ws.send(JSON.stringify({ error: "sending message to your self is not allowed right now" }));
+    ws.send(JSON.stringify({ error: "Sending message to yourself is not allowed right now" }));
     return;
   }
 
-  // Save message to database
-  const chatMessage = new Chat({
-    senderId: from,
-    receiverId: to,
-    message,
-  });
+  try {
+    const loggedUser = await user.findById(from);
+    const recipientUser = await user.findById(to);
 
-  await chatMessage.save();
+    if (!loggedUser || !recipientUser) {
+      ws.send(JSON.stringify({ error: "User not found" }));
+      return;
+    }
 
-  // Send message to receiver if online
-  const receiverWs = onlineUsers.get(to.toString());
-  if (receiverWs) {
-    receiverWs.send(
+    // Check if the users are already friends
+    const areAlreadyFriends = loggedUser.friends.includes(to);
+
+    if (!areAlreadyFriends) {
+      // Add each other to their friends list
+      loggedUser.friends.push(to);
+      recipientUser.friends.push(from);
+
+      // Save both users
+      await loggedUser.save();
+      await recipientUser.save();
+
+      console.log(`Users ${loggedUser.fullName} and ${recipientUser.fullName} are now friends.`);
+    }
+
+    // Save the message to the database
+    const chatMessage = new Chat({
+      senderId: from,
+      receiverId: to,
+      message,
+    });
+
+    await chatMessage.save();
+
+    // Send message to receiver if they are online
+    const receiverWs = onlineUsers.get(to.toString());
+    if (receiverWs) {
+      receiverWs.send(
+        JSON.stringify({
+          type: "newMessage",
+          from,
+          message,
+          timestamp: chatMessage.createdAt,
+          messageId: chatMessage._id,
+        })
+      );
+    }
+
+    // Optionally, send a confirmation back to the sender
+    ws.send(
       JSON.stringify({
-        from,
-        message,
-        timestamp: chatMessage.createdAt,
+        success: true,
+        message: "Message sent successfully",
         messageId: chatMessage._id,
       })
     );
+  } catch (error) {
+    console.error("Error handling incoming message:", error);
+    ws.send(JSON.stringify({ error: "Internal server error" }));
   }
 }
 

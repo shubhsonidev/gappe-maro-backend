@@ -108,10 +108,18 @@ async function handleVerifyOTP(req, res) {
       if (isUserExist) {
         const token = createTokenForUser(isUserExist);
 
-        return res.status(200).cookie("token", token).json({
-          success: true,
-          message: "Logged in successfully",
-        });
+        return res
+          .status(200)
+          .cookie("token", token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "None",
+          })
+          .json({
+            success: true,
+            message: "Logged in successfully",
+            token: token,
+          });
       } else {
         const newUser = await user.create({
           fullName: fullName,
@@ -120,10 +128,18 @@ async function handleVerifyOTP(req, res) {
 
         const token = createTokenForUser(newUser);
 
-        return res.status(200).cookie("token", token).json({
-          success: true,
-          message: "Logged in successfully",
-        });
+        return res
+          .status(200)
+          .cookie("token", token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "None",
+          })
+          .json({
+            success: true,
+            message: "Logged in successfully",
+            token: token,
+          });
       }
     } catch (error) {
       return res.status(400).json({
@@ -185,7 +201,7 @@ async function handleUserSearch(req, res) {
     const foundUser = await user.findOne({ mobileNumber: mobileNumber });
 
     if (!foundUser) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ status: false, message: "User not found" });
     }
 
     // Return the found user's basic information (excluding sensitive data)
@@ -203,15 +219,35 @@ async function handleUserSearch(req, res) {
 
 async function handleGetUserInfo(req, res) {
   try {
+    // Check if the user is present in the request
     if (!req.user) {
       return res.status(404).json({ status: false, message: "Invalid User" });
     }
 
-    const User = await user.findById({ _id: req.user._id });
+    // Fetch the user by ID and populate the friends field with selected information
+    const userInfo = await user
+      .findById(req.user._id)
+      .populate("friends", "fullName mobileNumber bio profileImageURL")
+      .lean();
 
-    res.status(200).json({ status: true, message: "User Found successfully", user: User });
+    // If user is not found
+    if (!userInfo) {
+      return res.status(404).json({ status: false, message: "User not found" });
+    }
+
+    // If user is found, return the user info
+    res.status(200).json({
+      status: true,
+      message: "User Found successfully",
+      user: userInfo,
+    });
   } catch (error) {
-    res.status(500).json({ status: false, message: "Server error", error: error });
+    console.error("Error fetching user info:", error);
+    res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
   }
 }
 
