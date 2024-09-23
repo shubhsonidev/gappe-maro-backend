@@ -2,7 +2,7 @@ const { validateToken } = require("../services/authentication");
 
 function checkForAuthenticationHeader(headerName) {
   return (req, res, next) => {
-    const token = req.headers[headerName.toLowerCase()]; // Retrieve token from the specified header
+    const token = req.headers["authtoken"]; // Retrieve token from the specified header
     if (!token) {
       return next(); // No token, proceed without authentication
     }
