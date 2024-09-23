@@ -111,7 +111,6 @@ async function handleVerifyOTP(req, res) {
         return res
           .status(200)
           .cookie("token", token, {
-            httpOnly: true,
             secure: true,
             sameSite: "None",
           })
