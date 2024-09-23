@@ -1,19 +1,22 @@
 const { validateToken } = require("../services/authentication");
 
-function checkForAuthenticationCookie(cookieName) {
+function checkForAuthenticationHeader(headerName) {
   return (req, res, next) => {
-    const token = req.cookies[cookieName];
+    const token = req.headers[headerName.toLowerCase()]; // Retrieve token from the specified header
     if (!token) {
-      return next();
+      return next(); // No token, proceed without authentication
     }
     try {
-      const userPayload = validateToken(token);
-      req.user = userPayload;
-    } catch (error) {}
+      const userPayload = validateToken(token); // Validate the token
+      req.user = userPayload; // Attach user payload to the request object
+    } catch (error) {
+      // Handle token validation error (optional)
+      console.error("Token validation failed:", error);
+    }
     return next();
   };
 }
 
 module.exports = {
-  checkForAuthenticationCookie,
+  checkForAuthenticationHeader,
 };

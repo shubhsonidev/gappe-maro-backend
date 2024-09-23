@@ -54,7 +54,7 @@ connectToDB().then(() => console.log("MONGODB Connection Successful!"));
 // Middlewares
 app.use(express.json({ limit: "200mb" }));
 app.use(cookieParser());
-app.use(checkForAuthenticationCookie("token"));
+app.use(checkForAuthenticationHeader("authToken"));
 
 //Master routes
 app.use("/api/user", userRouter);
