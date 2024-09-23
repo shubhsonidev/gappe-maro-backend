@@ -15,18 +15,34 @@ const { handleWebSocketConnection } = require("./controllers/chatController");
 const app = express();
 const port = process.env.PORT || 4200;
 app.set("trust proxy", true);
+
+// List of allowed origins
+const allowedOrigins = [
+  "http://localhost:4200", // Local development
+  "https://gappe-maro.netlify.app", // Production URL
+];
+
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", req.headers.origin); // Dynamically allow the requesting origin
+  // Set the Access-Control-Allow-Origin header dynamically based on the allowed origins
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+  }
   res.header("Access-Control-Allow-Credentials", "true"); // Allow credentials
-  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE"); // Allow specific methods
+  res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE"); // Allow specific methods
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization"); // Allow specific headers
   next();
 });
 
+// Use CORS middleware after setting the headers
 app.use(
   cors({
     origin: (origin, callback) => {
-      callback(null, origin || "*"); // Dynamically set the origin, default to '*'
+      if (origin && allowedOrigins.includes(origin)) {
+        callback(null, origin);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
     },
     credentials: true,
   })
