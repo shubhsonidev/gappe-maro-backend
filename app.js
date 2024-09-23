@@ -16,7 +16,7 @@ const app = express();
 const port = process.env.PORT || 4200;
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", req.headers.origin); // Dynamically allow the requesting origin
+  res.header("Access-Control-Allow-Origin", "https://gappe-maro.netlify.app"); // Dynamically allow the requesting origin
   res.header("Access-Control-Allow-Credentials", "true"); // Allow credentials
   res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE"); // Allow specific methods
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization"); // Allow specific headers
@@ -25,10 +25,8 @@ app.use((req, res, next) => {
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      callback(null, origin || "*"); // Dynamically set the origin, default to '*'
-    },
-    credentials: true,
+    origin: "https://gappe-maro.netlify.app", // Replace with your Angular app's URL
+    credentials: true, // Allow cookies to be sent
   })
 );
 
