@@ -12,7 +12,6 @@
 ## **Live Demo**
 
 Check out the live demo of **Gappe Maro** here: [Gappe Maro Live](https://gappe-maro.netlify.app/login)  
-(_Please note that only the UI part is completed as it's still under development._)
 
 ![Mockup Screenshot](https://raw.githubusercontent.com/shubhsonidev/gappe-maro/main/1724728499760.jpeg)
 
